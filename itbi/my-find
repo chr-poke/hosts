@@ -1,0 +1,31 @@
+#!/bin/env bash
+
+files=`ls`
+
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -find) find="$2" ;;
+    -exec) exec="$2" ;;
+    -type) type="$2" ;;
+  esac
+  shift
+done
+
+for f in $files; do
+    [[ ! -z "$find" ]] && [[ ! "$f" == "$find" ]] && \
+       continue
+
+    ls_output=`ls -l | grep "$f"`
+    ftype=${ls_output:0:1}
+
+    if ! [[ -z "$type" ]]; then
+        [[ "$type" == "d" ]] && [[ $ftype != "d" ]] && continue
+        [[ "$type" == "f" ]] && [[ $ftype != "-" ]] && continue
+    fi
+
+    if [[ -z "$exec" ]]; then
+        echo $f
+    else
+        $exec $f
+    fi
+done
